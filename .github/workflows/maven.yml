@@ -62,10 +62,13 @@ jobs:
             --docker-email=<your-email>
 
       - name: Apply Kubernetes deployment
-        run: kubectl apply -f deployment.yml
+        run: kubectl apply -f deployment.yaml
 
       - name: Describe deployment for debugging
         run: kubectl describe deployment grocerystore
+
+      - name: Describe problematic pod for debugging
+        run: kubectl describe pod grocerystore-d7d877757-9h6b5
 
       - name: Get pod names and logs
         run: |
@@ -76,7 +79,7 @@ jobs:
           done
 
       - name: Check for image pull secrets
-        run: kubectl get secret acr-secret -o yaml
+        run: kubectl get secret acr-secret -o yml
 
       - name: Update Kubernetes deployment image
         run: |
