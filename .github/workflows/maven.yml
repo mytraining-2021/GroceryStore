@@ -45,12 +45,14 @@ jobs:
 
       - name: Create Kubernetes secret for ACR if not exists
         run: |
-          if ! kubectl get secret acr-secret; then
+          if kubectl get secret acr-secret; then
+            echo "Secret acr-secret already exists"
+          else
             kubectl create secret docker-registry acr-secret \
               --docker-server=${{ secrets.AZURE_ACR_NAME }}.azurecr.io \
               --docker-username=${{ secrets.AZURE_ACR_USERNAME }} \
               --docker-password=${{ secrets.AZURE_ACR_PASSWORD }} \
-              --docker-email=<your-email>;
+              --docker-email=<your-email>
           fi
 
       - name: Apply Kubernetes deployment
