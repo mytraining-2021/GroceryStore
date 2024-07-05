@@ -69,7 +69,8 @@ jobs:
 
       - name: Get pod names
         id: get-pods
-        run: echo $(kubectl get pods -o jsonpath='{.items[*].metadata.name}')
+        run: |
+          kubectl get pods -o jsonpath='{.items[*].metadata.name}'
 
       - name: Describe and get logs for each pod
         run: |
@@ -85,6 +86,12 @@ jobs:
 
       - name: Check for image pull secrets
         run: kubectl get secret acr-secret -o yaml
+
+      - name: Force delete old pods
+        run: |
+          for pod in $(kubectl get pods -o jsonpath='{.items[?(@.status.phase=="Terminating")].metadata.name}'); do
+            kubectl delete pod $pod --grace-period=0 --force
+          done
 
       - name: Update Kubernetes deployment image
         run: |
