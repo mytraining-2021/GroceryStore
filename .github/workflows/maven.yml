@@ -43,10 +43,24 @@ jobs:
       - name: Create kubeconfig
         run: echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
+      - name: List files in current directory
+        run: ls -al
+
       - name: Apply Kubernetes deployment
         run: kubectl apply -f deployment.yml
+
+      - name: Describe deployment for debugging
+        run: kubectl describe deployment grocerystore
+
+      - name: Get pod names and logs
+        run: |
+          kubectl get pods -o wide
+          for pod in $(kubectl get pods -o=jsonpath='{.items[*].metadata.name}'); do
+            echo "Logs for pod $pod:"
+            kubectl logs $pod
+          done
 
       - name: Update Kubernetes deployment image
         run: |
           kubectl set image deployment/grocerystore grocerystore=${{ secrets.AZURE_ACR_NAME }}.azurecr.io/grocerystore:latest
-          kubectl rollout status deployment/grocerystore
+          kubectl rollout status deployment/grocerystore --timeout=120s
