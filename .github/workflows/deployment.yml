@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grocerystore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grocerystore
+  template:
+    metadata:
+      labels:
+        app: grocerystore
+    spec:
+      containers:
+        - name: grocerystore
+          image: myacr003.azurecr.io/grocerystore:latest
+          ports:
+            - containerPort: 8080
