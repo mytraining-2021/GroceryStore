@@ -37,6 +37,9 @@ jobs:
     - name: Set up Kubernetes
       uses: azure/setup-kubectl@v1
 
+    - name: Create .kube directory
+      run: mkdir -p $HOME/.kube
+
     - name: Create kubeconfig
       run: echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
