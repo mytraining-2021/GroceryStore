@@ -67,14 +67,16 @@ jobs:
       - name: Describe deployment for debugging
         run: kubectl describe deployment grocerystore
 
-      - name: Describe problematic pod for debugging
-        run: kubectl describe pod grocerystore-d7d877757-9h6b5
+      - name: Get pod names
+        id: get-pods
+        run: kubectl get pods -o jsonpath='{.items[*].metadata.name}'
 
-      - name: Get pod names and logs
+      - name: Describe and get logs for each pod
         run: |
-          kubectl get pods -o wide
-          for pod in $(kubectl get pods -o=jsonpath='{.items[*].metadata.name}'); do
-            echo "Logs for pod $pod:"
+          for pod in $(echo ${{ steps.get-pods.outputs.result }}); do
+            echo "Describing pod $pod"
+            kubectl describe pod $pod
+            echo "Logs for pod $pod"
             kubectl logs $pod --all-containers=true
           done
 
