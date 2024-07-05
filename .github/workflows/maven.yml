@@ -1,4 +1,4 @@
-name: Build and Push to ACR
+name: Build, Push to ACR, and Deploy to AKS
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,7 @@ jobs:
     - name: Build with Maven
       run: mvn clean install
 
-    - name: Log in to Docker Hub
+    - name: Log in to Azure Container Registry
       run: echo ${{ secrets.AZURE_ACR_PASSWORD }} | docker login ${{ secrets.AZURE_ACR_NAME }}.azurecr.io -u ${{ secrets.AZURE_ACR_USERNAME }} --password-stdin
 
     - name: Build and push Docker image
@@ -31,5 +31,16 @@ jobs:
         docker build -t ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/grocerystore:latest .
         docker push ${{ secrets.AZURE_ACR_NAME }}.azurecr.io/grocerystore:latest
 
-    - name: Logout from Docker Hub
+    - name: Logout from Azure Container Registry
       run: docker logout ${{ secrets.AZURE_ACR_NAME }}.azurecr.io
+
+    - name: Set up Kubernetes
+      uses: azure/setup-kubectl@v1
+
+    - name: Create kubeconfig
+      run: echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl set image deployment/grocerystore grocerystore=${{ secrets.AZURE_ACR_NAME }}.azurecr.io/grocerystore:latest
+        kubectl rollout status deployment/grocerystore
