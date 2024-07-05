@@ -17,3 +17,5 @@ spec:
           image: myacr003.azurecr.io/grocerystore:latest
           ports:
             - containerPort: 8080
+      imagePullSecrets:
+        - name: acr-secret

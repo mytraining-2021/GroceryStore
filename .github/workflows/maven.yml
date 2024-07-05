@@ -72,8 +72,11 @@ jobs:
           kubectl get pods -o wide
           for pod in $(kubectl get pods -o=jsonpath='{.items[*].metadata.name}'); do
             echo "Logs for pod $pod:"
-            kubectl logs $pod
+            kubectl logs $pod --all-containers=true
           done
+
+      - name: Check for image pull secrets
+        run: kubectl get secret acr-secret -o yaml
 
       - name: Update Kubernetes deployment image
         run: |
