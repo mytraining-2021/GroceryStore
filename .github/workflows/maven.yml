@@ -43,8 +43,13 @@ jobs:
       - name: Create kubeconfig
         run: echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
-      - name: List files in current directory
-        run: ls -al
+      - name: Create Kubernetes secret for ACR
+        run: |
+          kubectl create secret docker-registry acr-secret \
+            --docker-server=${{ secrets.AZURE_ACR_NAME }}.azurecr.io \
+            --docker-username=${{ secrets.AZURE_ACR_USERNAME }} \
+            --docker-password=${{ secrets.AZURE_ACR_PASSWORD }} \
+            --docker-email=chandramouli.h@outlook.com
 
       - name: Apply Kubernetes deployment
         run: kubectl apply -f deployment.yml
