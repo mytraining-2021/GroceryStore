@@ -43,17 +43,23 @@ jobs:
       - name: Create kubeconfig
         run: echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
-      - name: Create Kubernetes secret for ACR if not exists
+      - name: Check if Kubernetes secret exists
+        id: check-secret
         run: |
           if kubectl get secret acr-secret; then
-            echo "Secret acr-secret already exists"
+            echo "Secret acr-secret already exists" >> $GITHUB_ENV
           else
-            kubectl create secret docker-registry acr-secret \
-              --docker-server=${{ secrets.AZURE_ACR_NAME }}.azurecr.io \
-              --docker-username=${{ secrets.AZURE_ACR_USERNAME }} \
-              --docker-password=${{ secrets.AZURE_ACR_PASSWORD }} \
-              --docker-email=<your-email>
+            echo "CREATE_SECRET=true" >> $GITHUB_ENV
           fi
+
+      - name: Create Kubernetes secret for ACR if not exists
+        if: env.CREATE_SECRET == 'true'
+        run: |
+          kubectl create secret docker-registry acr-secret \
+            --docker-server=${{ secrets.AZURE_ACR_NAME }}.azurecr.io \
+            --docker-username=${{ secrets.AZURE_ACR_USERNAME }} \
+            --docker-password=${{ secrets.AZURE_ACR_PASSWORD }} \
+            --docker-email=<your-email>
 
       - name: Apply Kubernetes deployment
         run: kubectl apply -f deployment.yml
