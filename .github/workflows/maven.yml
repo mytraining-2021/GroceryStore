@@ -44,7 +44,7 @@ jobs:
         run: echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
       - name: Apply Kubernetes deployment
-        run: kubectl apply -f deployment.yaml
+        run: kubectl apply -f deployment.yml
 
       - name: Update Kubernetes deployment image
         run: |
