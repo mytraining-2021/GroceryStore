@@ -69,7 +69,7 @@ jobs:
 
       - name: Get pod names
         id: get-pods
-        run: kubectl get pods -o jsonpath='{.items[*].metadata.name}'
+        run: echo $(kubectl get pods -o jsonpath='{.items[*].metadata.name}')
 
       - name: Describe and get logs for each pod
         run: |
@@ -80,10 +80,13 @@ jobs:
             kubectl logs $pod --all-containers=true
           done
 
+      - name: Check node resources
+        run: kubectl describe nodes
+
       - name: Check for image pull secrets
         run: kubectl get secret acr-secret -o yaml
 
       - name: Update Kubernetes deployment image
         run: |
           kubectl set image deployment/grocerystore grocerystore=${{ secrets.AZURE_ACR_NAME }}.azurecr.io/grocerystore:latest
-          kubectl rollout status deployment/grocerystore --timeout=120s
+          kubectl rollout status deployment/grocerystore --timeout=300s
