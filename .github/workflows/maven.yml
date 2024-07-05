@@ -87,9 +87,15 @@ jobs:
       - name: Check for image pull secrets
         run: kubectl get secret acr-secret -o yaml
 
-      - name: Force delete old pods
+      - name: Check for finalizers and force delete old pods
         run: |
           for pod in $(kubectl get pods -o jsonpath='{.items[?(@.status.phase=="Terminating")].metadata.name}'); do
+            finalizers=$(kubectl get pod $pod -o jsonpath='{.metadata.finalizers}')
+            if [ -n "$finalizers" ]; then
+              echo "Removing finalizers for pod $pod"
+              kubectl patch pod $pod -p '{"metadata":{"finalizers":null}}'
+            fi
+            echo "Force deleting pod $pod"
             kubectl delete pod $pod --grace-period=0 --force
           done
 
