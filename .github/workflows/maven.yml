@@ -43,13 +43,15 @@ jobs:
       - name: Create kubeconfig
         run: echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
-      - name: Create Kubernetes secret for ACR
+      - name: Create Kubernetes secret for ACR if not exists
         run: |
-          kubectl create secret docker-registry acr-secret \
-            --docker-server=${{ secrets.AZURE_ACR_NAME }}.azurecr.io \
-            --docker-username=${{ secrets.AZURE_ACR_USERNAME }} \
-            --docker-password=${{ secrets.AZURE_ACR_PASSWORD }} \
-            --docker-email=chandramouli.h@outlook.com
+          if ! kubectl get secret acr-secret; then
+            kubectl create secret docker-registry acr-secret \
+              --docker-server=${{ secrets.AZURE_ACR_NAME }}.azurecr.io \
+              --docker-username=${{ secrets.AZURE_ACR_USERNAME }} \
+              --docker-password=${{ secrets.AZURE_ACR_PASSWORD }} \
+              --docker-email=<your-email>;
+          fi
 
       - name: Apply Kubernetes deployment
         run: kubectl apply -f deployment.yml
