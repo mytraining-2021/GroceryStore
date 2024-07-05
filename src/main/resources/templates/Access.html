@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protected Endpoint Access</title>
+</head>
+<body>
+<h2>Access Protected Endpoint</h2>
+<div>
+    <label for="jwtToken">JWT Token:</label>
+    <input type="text" id="jwtToken" name="jwtToken" placeholder="Enter your JWT token">
+    <button onclick="accessProtectedEndpoint()">Access Endpoint</button>
+</div>
+<div id="response"></div>
+
+<script>
+    function accessProtectedEndpoint() {
+        const jwtToken = document.getElementById('jwtToken').value;
+
+        // Define the endpoint URL
+        const endpointUrl = 'http://localhost:8080/api/protected-endpoint';
+
+        // Fetch options with Authorization header
+        const requestOptions = {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + jwtToken,
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include' // This is important if you are sending cookies
+        };
+
+        // Make the fetch request
+        fetch(endpointUrl, requestOptions)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch'); // Handle specific error messages
+                }
+                return response.text();
+            })
+            .then(data => {
+                // Display success message
+                document.getElementById('response').innerHTML = `<p>${data}</p>`;
+            })
+            .catch(error => {
+                console.error('Error accessing protected endpoint:', error);
+                document.getElementById('response').innerHTML = `<p>Error accessing protected endpoint: ${error.message}</p>`;
+            });
+    }
+</script>
+</body>
+</html>

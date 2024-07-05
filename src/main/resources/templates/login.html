@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+<h2>Login</h2>
+<div>
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" placeholder="Enter your username" oninput="validateInputs()">
+</div>
+<div>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" placeholder="Enter your password" oninput="validateInputs()">
+</div>
+<button id="loginButton" onclick="login()" disabled>Login</button>
+<div id="response"></div>
+<div id="registerLink">
+    <p>Don't have an account? <a href="register.html">Register</a></p>
+</div>
+
+<script>
+    function validateInputs() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const loginButton = document.getElementById('loginButton');
+
+        if (username.trim() !== '' && password.trim() !== '') {
+            loginButton.removeAttribute('disabled');
+        } else {
+            loginButton.setAttribute('disabled', 'disabled');
+        }
+    }
+
+    function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        const loginUrl = 'http://localhost:8080/api/login';
+        const requestBody = {
+            username: username,
+            password: password
+        };
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        };
+
+        fetch(loginUrl, requestOptions)
+            .then(response => {
+                if (response.ok) {
+                    return response.json(); // Handle as JSON
+                } else {
+                    return response.text().then(text => {
+                        throw new Error(text);
+                    });
+                }
+            })
+            .then(result => {
+                // Successfully logged in
+                document.getElementById('response').innerHTML = `<p>Welcome, ${username}!</p>`;
+                // Store the JWT token for further requests
+                localStorage.setItem('jwtToken', result.jwt);
+                localStorage.setItem('username', username); // Store username in local storage
+                // Redirect to protected endpoint page
+                window.location.href = 'protected.html';
+            })
+            .catch(error => {
+                if (error.message.startsWith('User not found')) {
+                    // Show user not found message
+                    document.getElementById('response').innerHTML = `<p>User not found. Please Register</p>`;
+                } else {
+                    // Show other error messages
+                    document.getElementById('response').innerHTML = `<p>${error.message}</p>`;
+                }
+            });
+    }
+</script>
+</body>
+</html>

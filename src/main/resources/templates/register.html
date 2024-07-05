@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+<h2>Register</h2>
+<div>
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" placeholder="Enter your username" oninput="validateInputs()">
+</div>
+<div>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" placeholder="Enter your password" oninput="validateInputs()">
+</div>
+<button id="registerButton" onclick="register()" disabled>Register</button>
+<div id="response"></div>
+
+<script>
+    function validateInputs() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const registerButton = document.getElementById('registerButton');
+
+        if (username.trim() !== '' && password.trim() !== '') {
+            registerButton.removeAttribute('disabled');
+        } else {
+            registerButton.setAttribute('disabled', 'disabled');
+        }
+    }
+
+    function register() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        const registerUrl = 'http://localhost:8080/api/register';
+        const requestBody = {
+            username: username,
+            password: password
+        };
+
+        const requestOptions = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        };
+
+        fetch(registerUrl, requestOptions)
+            .then(response => {
+                if (response.ok) {
+                    document.getElementById('response').innerHTML = `<p>User registered successfully.</p>`;
+                    // Redirect to login page after successful registration
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000); // Redirect after 2 seconds (adjust as needed)
+                } else {
+                    return response.text().then(text => {
+                        throw new Error(text);
+                    });
+                }
+            })
+            .catch(error => {
+                document.getElementById('response').innerHTML = `<p>${error.message}</p>`;
+            });
+    }
+</script>
+</body>
+</html>

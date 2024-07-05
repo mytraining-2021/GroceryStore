@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protected Endpoint</title>
+</head>
+<body>
+<h2>Welcome, <span id="username"></span>!</h2>
+<div id="protectedResponse"></div>
+<div id="errorResponse" style="color: red;"></div>
+<button onclick="logout()">Logout</button>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var username = localStorage.getItem('username'); // Retrieve username from localStorage
+        var jwtToken = localStorage.getItem('jwtToken'); // Retrieve JWT token from localStorage
+
+        document.getElementById('username').innerText = username;
+
+        fetchProtectedEndpoint(jwtToken);
+    });
+
+    function fetchProtectedEndpoint(jwtToken) {
+        if (!jwtToken) {
+            console.error('JWT token not found in localStorage');
+            return;
+        }
+
+        fetch('http://localhost:8080/api/protected-endpoint', {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + jwtToken
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.text(); // Assuming the response is plain text
+            })
+            .then(data => {
+                document.getElementById('protectedResponse').innerText = data;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('errorResponse').innerText = 'Error accessing protected endpoint: ' + error.message;
+            });
+    }
+
+    function logout() {
+        localStorage.removeItem('jwtToken');
+        localStorage.removeItem('username'); // Clear username on logout
+        window.location.href = 'http://localhost:63342/GroceoryStore/templates/login.html'; // Redirect to login page
+    }
+</script>
+</body>
+</html>
