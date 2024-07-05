@@ -23,7 +23,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: yourregistry.azurecr.io/grocerystore:latest
+          tags: myacr003.azurecr.io/grocerystore:latest
           file: Dockerfile
 
       - name: Azure Logout
