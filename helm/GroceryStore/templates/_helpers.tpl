@@ -23,3 +23,13 @@ Create chart name and version as used by the chart label.
 {{- define "GroceryStore.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" -}}
 {{- end -}}
+
+{{/*
+Common labels
+*/}}
+{{- define "GroceryStore.labels" -}}
+app.kubernetes.io/name: {{ include "GroceryStore.name" . }}
+helm.sh/chart: {{ include "GroceryStore.chart" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
