@@ -15,9 +15,9 @@ spec:
         app: {{ include "GroceryStore.name" . }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}
+        - name: { { .Chart.Name } }
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          imagePullPolicy: { { .Values.image.pullPolicy } }
           ports:
             - containerPort: 8080
           resources:
@@ -31,4 +31,5 @@ spec:
             - name: APPLICATIONINSIGHTS_CONNECTION_STRING
               value: { { .Values.env[ 0 ].value } }
       imagePullSecrets:
-        - name: {{index .Values.imagePullSecrets[ 0 ].name }}
+        - name: { { .Values.imagePullSecrets[ 0 ].name } }
+    
