@@ -8,11 +8,11 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "GroceryStore.name" . }}
+      {{- include "GroceryStore.selectorLabels" . | nindent 4 }}
   template:
     metadata:
       labels:
-        app: {{ include "GroceryStore.name" . }}
+        {{- include "GroceryStore.selectorLabels" . | nindent 4 }}
     spec:
       serviceAccountName: {{ include "GroceryStore.serviceAccountName" . }}
       containers:
@@ -30,8 +30,8 @@ spec:
               cpu: "500m"
           env:
             {{- range .Values.env }}
-            - name: {{ .name }}
-              value: {{ .value | quote }}
+            - name: "{{ .name }}"
+              value: "{{ .value }}"
             {{- end }}
       imagePullSecrets:
         {{- range .Values.imagePullSecrets }}
