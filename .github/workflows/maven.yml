@@ -13,6 +13,9 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v1
+
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
@@ -23,8 +26,11 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
+      - name: Verify target directory
+        run: ls -la target
+
       - name: Log in to Azure Container Registry
-        run: echo ${{ secrets.AZURE_ACR_PASSWORD }} | docker login ${{ secrets.AZURE_ACR_NAME }}.azurecr.io -u ${{ secrets.AZURE_ACR_USERNAME }} --password-stdin
+        run: echo "${{ secrets.AZURE_ACR_PASSWORD }}" | docker login ${{ secrets.AZURE_ACR_NAME }}.azurecr.io -u ${{ secrets.AZURE_ACR_USERNAME }} --password-stdin
 
       - name: Build and push Docker image
         run: |
@@ -43,66 +49,6 @@ jobs:
       - name: Create kubeconfig
         run: echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
-      - name: Check if Kubernetes secret exists
-        id: check-secret
+      - name: Deploy with Helm
         run: |
-          if kubectl get secret acr-secret; then
-            echo "SECRET_EXISTS=true" >> $GITHUB_ENV
-          else
-            echo "SECRET_EXISTS=false" >> $GITHUB_ENV
-          fi
-
-      - name: Create Kubernetes secret for ACR if not exists
-        if: env.SECRET_EXISTS == 'false'
-        run: |
-          kubectl create secret docker-registry acr-secret \
-            --docker-server=${{ secrets.AZURE_ACR_NAME }}.azurecr.io \
-            --docker-username=${{ secrets.AZURE_ACR_USERNAME }} \
-            --docker-password=${{ secrets.AZURE_ACR_PASSWORD }} \
-            --docker-email=<your-email>
-
-      - name: Apply Kubernetes deployment
-        run: kubectl apply -f deployment.yaml
-
-      - name: Apply Kubernetes service
-        run: kubectl apply -f grocerystore-service.yaml
-
-      - name: Describe deployment for debugging
-        run: kubectl describe deployment grocerystore
-
-      - name: Get pod names
-        id: get-pods
-        run: |
-          kubectl get pods -o jsonpath='{.items[*].metadata.name}'
-
-      - name: Describe and get logs for each pod
-        run: |
-          for pod in $(echo ${{ steps.get-pods.outputs.result }}); do
-            echo "Describing pod $pod"
-            kubectl describe pod $pod
-            echo "Logs for pod $pod"
-            kubectl logs $pod --all-containers=true
-          done
-
-      - name: Check node resources
-        run: kubectl describe nodes
-
-      - name: Check for image pull secrets
-        run: kubectl get secret acr-secret -o yaml
-
-      - name: Check for finalizers and force delete old pods
-        run: |
-          for pod in $(kubectl get pods -o jsonpath='{.items[?(@.status.phase=="Terminating")].metadata.name}'); do
-            finalizers=$(kubectl get pod $pod -o jsonpath='{.metadata.finalizers}')
-            if [ -n "$finalizers" ]; then
-              echo "Removing finalizers for pod $pod"
-              kubectl patch pod $pod -p '{"metadata":{"finalizers":null}}'
-            fi
-            echo "Force deleting pod $pod"
-            kubectl delete pod $pod --grace-period=0 --force
-          done
-
-      - name: Update Kubernetes deployment image
-        run: |
-          kubectl set image deployment/grocerystore grocerystore=${{ secrets.AZURE_ACR_NAME }}.azurecr.io/grocerystore:latest
-          kubectl rollout status deployment/grocerystore --timeout=300s
+          helm upgrade --install grocerystore ./helm/GroceryStore --set image.repository=${{ secrets.AZURE_ACR_NAME }}.azurecr.io/grocerystore --set image.tag=latest --set env.APPLICATIONINSIGHTS_CONNECTION_STRING="InstrumentationKey=${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}"
