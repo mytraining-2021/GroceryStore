@@ -33,3 +33,14 @@ helm.sh/chart: {{ include "GroceryStore.chart" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
+
+{{/*
+Service account name
+*/}}
+{{- define "GroceryStore.serviceAccountName" -}}
+{{- if .Values.serviceAccount.name -}}
+{{- .Values.serviceAccount.name -}}
+{{- else -}}
+{{ include "GroceryStore.fullname" . }}-sa
+{{- end -}}
+{{- end -}}
