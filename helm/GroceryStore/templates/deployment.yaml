@@ -8,13 +8,12 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "GroceryStore.selectorLabels" . | nindent 4 }}
+      app: {{ include "GroceryStore.name" . }}
   template:
     metadata:
       labels:
-        {{- include "GroceryStore.selectorLabels" . | nindent 4 }}
+        app: {{ include "GroceryStore.name" . }}
     spec:
-      serviceAccountName: {{ include "GroceryStore.serviceAccountName" . }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -29,13 +28,7 @@ spec:
               memory: "512Mi"
               cpu: "500m"
           env:
-            {{- with .Values.env }}
-              {{- range . }}
-              - name: "{{ .name }}"
-                value: "{{ .value }}"
-              {{- end }}
-              {{- end }}
+            - name: APPLICATIONINSIGHTS_CONNECTION_STRING
+              value: {{ .Values.env[0].value }}
       imagePullSecrets:
-        {{- range .Values.imagePullSecrets }}
-        - name: {{ .name }}
-        {{- end }}
+        - name: {{ .Values.imagePullSecrets[0].name }}
