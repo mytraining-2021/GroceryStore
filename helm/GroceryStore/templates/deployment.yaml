@@ -29,10 +29,12 @@ spec:
               memory: "512Mi"
               cpu: "500m"
           env:
-            {{- range .Values.env }}
-            - name: {{ .name | quote }}
-              value: {{ .value | quote }}
-            {{- end }}
+            {{- with .Values.env }}
+              {{- range . }}
+              - name: "{{ .name }}"
+                value: "{{ .value }}"
+              {{- end }}
+              {{- end }}
       imagePullSecrets:
         {{- range .Values.imagePullSecrets }}
         - name: {{ .name }}
