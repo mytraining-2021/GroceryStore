@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: <acr-name>.azurecr.io/grocerystore
+  repository: myacr003.azurecr.io/grocerystore
   tag: latest
   pullPolicy: Always
 
@@ -19,7 +19,11 @@ resources:
 
 env:
   - name: APPLICATIONINSIGHTS_CONNECTION_STRING
-    value: "InstrumentationKey=58afbe86-7142-4e09-a107-1076a958d84c;IngestionEndpoint=https://australiaeast-1.in.applicationinsights.azure.com/;LiveEndpoint=https://australiaeast.livediagnostics.monitor.azure.com/;ApplicationId=57fd0bae-602d-48d4-bcd3-ea750db9e259"
+    value: "InstrumentationKey=YOUR_INSTRUMENTATION_KEY"
 
 imagePullSecrets:
   - name: acr-secret
+
+serviceAccount:
+  create: true
+  name: ""

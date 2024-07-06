@@ -14,10 +14,11 @@ spec:
       labels:
         app: {{ include "GroceryStore.name" . }}
     spec:
+      serviceAccountName: {{ include "GroceryStore.serviceAccountName" . }}
       containers:
-        - name: { { .Chart.Name } }
+        - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: { { .Values.image.pullPolicy } }
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - containerPort: 8080
           resources:
@@ -28,8 +29,11 @@ spec:
               memory: "512Mi"
               cpu: "500m"
           env:
-            - name: APPLICATIONINSIGHTS_CONNECTION_STRING
-              value: { { .Values.env[ 0 ].value } }
+            {{- range .Values.env }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
       imagePullSecrets:
-        - name: { { .Values.imagePullSecrets[ 0 ].name } }
-    
+        {{- range .Values.imagePullSecrets }}
+        - name: {{ .name }}
+        {{- end }}
