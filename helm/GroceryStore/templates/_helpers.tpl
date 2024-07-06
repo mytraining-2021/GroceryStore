@@ -35,6 +35,14 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end -}}
 
 {{/*
+Selector labels
+*/}}
+{{- define "GroceryStore.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "GroceryStore.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end -}}
+
+{{/*
 Service account name
 */}}
 {{- define "GroceryStore.serviceAccountName" -}}
