@@ -29,9 +29,6 @@ spec:
               cpu: "500m"
           env:
             - name: APPLICATIONINSIGHTS_CONNECTION_STRING
-              valueFrom:
-                secretKeyRef:
-                  name: app-insights-secrets
-                  key: connectionString
+              value: {{ .Values.env[0].value }}
       imagePullSecrets:
         - name: {{ .Values.imagePullSecrets[0].name }}

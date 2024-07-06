@@ -1,7 +1,7 @@
 replicaCount: 2
 
 image:
-  repository: myacr003.azurecr.io/grocerystore
+  repository: <acr-name>.azurecr.io/grocerystore
   tag: latest
   pullPolicy: Always
 
