@@ -62,7 +62,10 @@ jobs:
             --docker-email=<your-email>
 
       - name: Apply Kubernetes deployment
-        run: kubectl apply -f deployment.yml
+        run: kubectl apply -f deployment.yaml
+
+      - name: Apply Kubernetes service
+        run: kubectl apply -f grocerystore-service.yaml
 
       - name: Describe deployment for debugging
         run: kubectl describe deployment grocerystore
