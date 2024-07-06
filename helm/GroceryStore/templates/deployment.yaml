@@ -31,4 +31,4 @@ spec:
             - name: APPLICATIONINSIGHTS_CONNECTION_STRING
               value: { { .Values.env[ 0 ].value } }
       imagePullSecrets:
-        - name: {{ .Values.imagePullSecrets[ 0 ].name }}
+        - name: {{index .Values.imagePullSecrets[ 0 ].name }}
