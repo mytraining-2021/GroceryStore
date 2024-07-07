@@ -49,6 +49,20 @@ jobs:
       - name: Create kubeconfig
         run: echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
-      - name: Deploy with Helm
+      - name: Set up Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.5.4
+
+      - name: Add Grafana Helm Repository
+        run: |
+          helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo update
+
+      - name: Install Loki and Promtail
+        run: |
+          helm install loki-stack grafana/loki-stack --namespace logging --create-namespace
+
+      - name: Deploy GroceryStore Application
         run: |
           helm upgrade --install grocerystore ./helm/GroceryStore --set image.repository=${{ secrets.AZURE_ACR_NAME }}.azurecr.io/grocerystore --set image.tag=latest --set env.APPLICATIONINSIGHTS_CONNECTION_STRING="InstrumentationKey=${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}"
