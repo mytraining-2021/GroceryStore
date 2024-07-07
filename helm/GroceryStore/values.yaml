@@ -44,23 +44,3 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
-
-# Loki and Promtail configuration
-loki:
-  enabled: true
-
-promtail:
-  enabled: true
-  config:
-    clients:
-      - url: http://loki:3100/loki/api/v1/push
-    positions:
-      filename: /tmp/positions.yaml
-    scrape_configs:
-      - job_name: system
-        static_configs:
-          - targets:
-              - localhost
-            labels:
-              job: varlogs
-              __path__: /var/log/*log
