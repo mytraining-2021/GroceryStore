@@ -14,7 +14,6 @@ spec:
       labels:
         app: {{ include "grocerystore.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name | replace "+" "-" | lower }}
-        {{- include "grocerystore.selectorLabels" . | nindent 4 }}
     spec:
       serviceAccountName: {{ include "grocerystore.serviceAccountName" . }}
       containers:
@@ -33,6 +32,12 @@ spec:
           env:
             - name: APPLICATIONINSIGHTS_CONNECTION_STRING
               value: "{{ .Values.env.APPLICATIONINSIGHTS_CONNECTION_STRING }}"
+            {{- with .Values.env }}
+            {{- range . }}
+            - name: "{{ .name }}"
+              value: "{{ .value }}"
+            {{- end }}
+            {{- end }}
       imagePullSecrets:
         {{- range .Values.imagePullSecrets }}
         - name: {{ .name }}
