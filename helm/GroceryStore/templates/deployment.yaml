@@ -13,12 +13,11 @@ spec:
     metadata:
       labels:
         app: {{ include "grocerystore.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name | replace "+" "-" | lower }}
         {{- include "grocerystore.selectorLabels" . | nindent 4 }}
     spec:
       serviceAccountName: {{ include "grocerystore.serviceAccountName" . }}
       containers:
-        - name: {{ .Chart.Name | lower | replace "-" "" }}
+        - name: {{ include "grocerystore.name" . }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -32,7 +31,14 @@ spec:
               cpu: "500m"
           env:
             - name: APPLICATIONINSIGHTS_CONNECTION_STRING
-              value: "InstrumentationKey=58afbe86-7142-4e09-a107-1076a958d84c;IngestionEndpoint=https://australiaeast-1.in.applicationinsights.azure.com/;LiveEndpoint=https://australiaeast.livediagnostics.monitor.azure.com/;ApplicationId=57fd0bae-602d-48d4-bcd3-ea750db9e259"
-
+              value: "{{ .Values.env.APPLICATIONINSIGHTS_CONNECTION_STRING }}"
+            {{- with .Values.env }}
+            {{- range . }}
+            - name: "{{ .name }}"
+              value: "{{ .value }}"
+            {{- end }}
+            {{- end }}
       imagePullSecrets:
-        - name: acr-secret
+        {{- range .Values.imagePullSecrets }}
+        - name: {{ .name }}
+        {{- end }}
