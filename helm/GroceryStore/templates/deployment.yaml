@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "grocerystore.fullname" . }}
   labels:
-    {{- include "GroceryStore.labels" . | nindent 4 }}
+    {{- include "grocerystore.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
