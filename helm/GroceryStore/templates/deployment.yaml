@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "GroceryStore.fullname" . }}
+  name: {{ include "grocerystore.fullname" . }}
   labels:
     {{- include "GroceryStore.labels" . | nindent 4 }}
 spec:
