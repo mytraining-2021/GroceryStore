@@ -13,12 +13,9 @@ spec:
     metadata:
       labels:
         app: {{ include "grocerystore.name" . }}
-        app.kubernetes.io/instance: {{ .Release.Name | replace "+" "-" | lower }}
-          {{- include "grocerystore.selectorLabels" . | nindent 4 }}
     spec:
-      serviceAccountName: {{ include "grocerystore.serviceAccountName" . }}
       containers:
-        - name: {{ .Chart.Name | lower | replace "-" "" }}
+        - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
