@@ -11,4 +11,4 @@ spec:
       targetPort: 8080
       protocol: TCP
   selector:
-    {{- include "grocerystore.selectorLabels" . | nindent 4 }}
+    app: {{ include "grocerystore.name" . }}

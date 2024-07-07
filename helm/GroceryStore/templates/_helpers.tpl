@@ -38,7 +38,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service | lower }}
 Selector labels
 */}}
 {{- define "grocerystore.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "grocerystore.name" . }}
+app: {{ include "grocerystore.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name | replace "+" "-" | lower }}
 {{- end -}}
 

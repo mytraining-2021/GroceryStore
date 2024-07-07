@@ -8,10 +8,11 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "grocerystore.selectorLabels" . | nindent 4 }}
+      app: {{ include "grocerystore.name" . }}
   template:
     metadata:
       labels:
+        app: {{ include "grocerystore.name" . }}
         {{- include "grocerystore.selectorLabels" . | nindent 4 }}
     spec:
       serviceAccountName: {{ include "grocerystore.serviceAccountName" . }}
