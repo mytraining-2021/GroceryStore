@@ -1,0 +1,23 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: install-loki
+  labels:
+    app: loki-installer
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded
+spec:
+  template:
+    spec:
+      containers:
+        - name: helm
+          image: alpine/helm:3.5.4
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              helm repo add grafana https://grafana.github.io/helm-charts &&
+              helm repo update &&
+              helm install loki-stack grafana/loki-stack --namespace logging --create-namespace
+      restartPolicy: OnFailure
