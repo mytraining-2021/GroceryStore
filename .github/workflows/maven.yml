@@ -59,9 +59,14 @@ jobs:
           helm repo add grafana https://grafana.github.io/helm-charts
           helm repo update
 
+      - name: Create namespaces
+        run: |
+          kubectl create namespace logging || true
+          kubectl create namespace monitoring || true
+
       - name: Deploy Loki
         run: |
-          helm upgrade --install loki grafana/loki-stack --namespace logging --create-namespace
+          helm upgrade --install loki grafana/loki-stack --namespace logging
 
       - name: Deploy Grafana
         run: |
